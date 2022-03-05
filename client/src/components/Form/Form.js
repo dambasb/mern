@@ -32,6 +32,7 @@ function Form({ currentId, setCurrentId }) {
     if (currentId) {
       dispatch(updatePost(currentId, postData));
     } else {
+      console.log(postData);
       dispatch(createPost(postData));
     }
 
@@ -83,7 +84,9 @@ function Form({ currentId, setCurrentId }) {
           label="Tags"
           fullWidth
           value={postData.tags}
-          onChange={(e) => setPostData({ ...postData, tags: e.target.value })}
+          onChange={(e) =>
+            setPostData({ ...postData, tags: e.target.value.split(",") })
+          }
         />
         <TextField
           name="creator"
@@ -102,7 +105,7 @@ function Form({ currentId, setCurrentId }) {
             onDone={({ base64 }) =>
               setPostData({ ...postData, selectedFile: base64 })
             }
-          ></FileBase>
+          />
         </div>
 
         <Button
