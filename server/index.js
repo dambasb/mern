@@ -15,6 +15,7 @@ app.use("/posts", postRoutes);
 app.use("/", (res, req) => {
   res.send("This is API");
 });
+
 const CONNECTION_URL =
   "mongodb+srv://mern:mern@mern.kilap.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const PORT = process.env.PORT || 5000;
