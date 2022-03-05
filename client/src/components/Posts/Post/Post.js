@@ -13,7 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import moment from "moment";
 import { useDispatch } from "react-redux";
-import { deletePost } from "../../../actions/posts.js";
+import { deletePost, likePost } from "../../../actions/posts.js";
 
 function Post({ post, setCurrentId }) {
   const classes = useStyles();
@@ -56,7 +56,11 @@ function Post({ post, setCurrentId }) {
         </Typography>
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button size="small" color="primary" onClick={() => {}}>
+        <Button
+          size="small"
+          color="primary"
+          onClick={() => dispatch(likePost(post._id))}
+        >
           <ThumbUpAltIcon fontSize="small" />
           Like
           {post.likeCount}
