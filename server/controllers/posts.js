@@ -11,12 +11,20 @@ export const getPosts = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
-  const post = req.body;
+  const { title, message, selectedFile, creator, tags } = req.body;
 
-  const newPost = new PostMessage(post);
+  const newPostMessage = new PostMessage({
+    title,
+    message,
+    selectedFile,
+    creator,
+    tags,
+  });
+
   try {
-    await newPost.save();
-    res.status(201).json(newPost);
+    await newPostMessage.save();
+
+    res.status(201).json(newPostMessage);
   } catch (error) {
     res.status(409).json({ message: error.message });
   }
@@ -36,4 +44,15 @@ export const updatePost = async (req, res) => {
   );
 
   res.json(updatedPost);
+};
+
+export const deletePost = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).send(`No post with id: ${id}`);
+
+  await PostMessage.findByIdAndRemove(id);
+
+  res.json({ message: "Post deleted successfully." });
 };
