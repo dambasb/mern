@@ -1,24 +1,27 @@
+import express from "express";
 import mongoose from "mongoose";
-import PostMessage from "../models/postsMessage.js";
+
+import PostMessage from "../models/postMessage.js";
+
+const router = express.Router();
 
 export const getPosts = async (req, res) => {
   try {
-    const postMassages = await PostMessage.find();
-    res.status(200).json(postMassages);
+    const postMessages = await PostMessage.find();
+
+    res.status(200).json(postMessages);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
 };
 
 export const createPost = async (req, res) => {
-  const { title, message, selectedFile, creator, tags } = req.body;
+  const post = req.body;
 
   const newPostMessage = new PostMessage({
-    title,
-    message,
-    selectedFile,
-    creator,
-    tags,
+    ...post,
+    creator: req.userId,
+    createdAt: new Date().toISOString(),
   });
 
   try {
@@ -31,17 +34,15 @@ export const createPost = async (req, res) => {
 };
 
 export const updatePost = async (req, res) => {
-  const { id: _id } = req.params;
-  const post = req.body;
+  const { id } = req.params;
+  const { title, message, creator, selectedFile, tags } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(_id))
-    return res.status(404).send(`No post with id: ${_id}`);
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).send(`No post with id: ${id}`);
 
-  const updatedPost = await PostMessage.findByIdAndUpdate(
-    _id,
-    { ...post, _id },
-    { new: true }
-  );
+  const updatedPost = { creator, title, message, tags, selectedFile, _id: id };
+
+  await PostMessage.findByIdAndUpdate(id, updatedPost, { new: true });
 
   res.json(updatedPost);
 };
@@ -60,7 +61,9 @@ export const deletePost = async (req, res) => {
 export const likePost = async (req, res) => {
   const { id } = req.params;
 
-  if (!req.userId) return res.json({ message: "Unauthenticated" });
+  if (!req.userId) {
+    return res.json({ message: "Unauthenticated" });
+  }
 
   if (!mongoose.Types.ObjectId.isValid(id))
     return res.status(404).send(`No post with id: ${id}`);
@@ -74,9 +77,10 @@ export const likePost = async (req, res) => {
   } else {
     post.likes = post.likes.filter((id) => id !== String(req.userId));
   }
-
   const updatedPost = await PostMessage.findByIdAndUpdate(id, post, {
     new: true,
   });
-  res.json(updatedPost);
+  res.status(200).json(updatedPost);
 };
+
+export default router;
